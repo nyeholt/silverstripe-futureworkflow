@@ -1,0 +1,37 @@
+# See https://github.com/silverstripe-labs/silverstripe-travis-support for setup details and example of testing OPTIONAL modules
+
+language: php
+
+php:
+  # Silverstripe 3.x
+  - 5.3
+  # Silverstripe 4
+  - 5.5
+
+env:
+  matrix:
+    # Silverstripe 3.x
+    - DB=MYSQL CORE_RELEASE=3.1
+    # Silverstripe 4
+    - DB=MYSQL CORE_RELEASE=4
+
+matrix:
+  include:
+    # Silverstripe 3.x
+    - php: 5.5
+      env: DB=MYSQL CORE_RELEASE=3.2
+    - php: 5.6
+      env: DB=MYSQL CORE_RELEASE=3
+    # Silverstripe 4
+#    - php: 5.6
+#      env: DB=MYSQL CORE_RELEASE=4
+
+before_script:
+  - composer self-update || true
+  - phpenv rehash
+  - git clone git://github.com/silverstripe-labs/silverstripe-travis-support.git ~/travis-support
+  - php ~/travis-support/travis_setup.php --source `pwd` --target ~/builds/ss
+  - cd ~/builds/ss
+
+script:
+  - vendor/bin/phpunit YOUR_MODULE_NAME/tests/
