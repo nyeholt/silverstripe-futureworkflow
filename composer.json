@@ -1,0 +1,36 @@
+{
+    "name": "symbiote-library/silverstripe-futureworkflow",
+    "description": "Time based trigger for starting a workflow in the future",
+    "type": "silverstripe-module",
+    "homepage": "http://github.com/symbiote-library",
+    "keywords": ["silverstripe", "workflow", "contentreview"],
+    "license": "BSD-3-Clause",
+    "authors": [
+        {
+            "name": "Marcus Nyeholt",
+            "email": "marcus@symbiote.com.au"
+        }
+    ],
+    "support": {
+        "issues": "http://github.com/symbiote-library"
+    },
+    "require": {
+        "silverstripe/framework": "~3.5",
+        "silverstripe/queuedjobs": "~2.4",
+        "symbiote/silverstripe-advancedworkflow": "~3.8"
+    },
+    "extra": {
+        "installer-name": "futureworkflow",
+        "branch-alias": {
+            "dev-master": "1.0.x-dev"
+        }
+    },
+    "autoload": {
+        "psr-4": {
+            "Symbiote\\FutureWorkflow\\": "src/",
+            "Symbiote\\FutureWorkflow\\Tests\\": "tests/"
+        }
+    },
+    "prefer-stable": true,
+    "minimum-stability": "dev"
+}
