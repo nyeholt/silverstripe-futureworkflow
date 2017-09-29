@@ -12,7 +12,7 @@ class FutureWorkflowJob extends \AbstractQueuedJob
 
     public function __construct($futureWorkflowTrigger = null)
     {
-        if ($futureWorkflowTrigger) {
+        if ($futureWorkflowTrigger && $futureWorkflowTrigger instanceof FutureWorkflowTrigger) {
             $this->setObject($futureWorkflowTrigger);
         }
     }
@@ -23,7 +23,7 @@ class FutureWorkflowJob extends \AbstractQueuedJob
         $trigger = $this->getObject();
         if ($trigger && $trigger->SourceID) {
             $source = $trigger->Source();
-            $boundTo = $source->BoundTo();
+            $boundTo = $trigger->BoundTo();
             return "Start workflow \"" . $trigger->Source()->Title ."\" on " . ($boundTo ? $boundTo->Title : " unknown");
         }
         return "Expired future workflow job";
@@ -31,27 +31,27 @@ class FutureWorkflowJob extends \AbstractQueuedJob
 
     public function process()
     {
-        $object = $this->getObject();
+        $trigger = $this->getObject();
 
         $this->isComplete = true;
 
-        if (!$object) {
+        if (!$trigger) {
             return;
         }
 
-        $object = $this->getObject()->Source();
+        $futureWorkflow = $trigger->Source();
 
-        if (!$object) {
+        if (!$futureWorkflow) {
             return;
         }
 
-        $applyTo = $object->BoundTo();
+        $applyTo = $trigger->BoundTo();
 
         if (!$applyTo) {
             return;
         }
 
-        $def = $object->Workflow();
+        $def = $futureWorkflow->Workflow();
 
         if (!$def) {
             return;
@@ -65,6 +65,6 @@ class FutureWorkflowJob extends \AbstractQueuedJob
         
 
         // and we can now delete the trigger
-        $this->getObject()->delete();
+        $trigger->delete();
     }
 }
