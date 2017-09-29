@@ -62,16 +62,29 @@ class FutureWorkflowTrigger extends \DataObject
 
     public function canEdit($member = null)
     {
-        return $this->BoundTo()->canEdit($member);
+        $boundTo = $this->BoundTo();
+        if ($boundTo) {
+            return $this->BoundTo()->canEdit($member);
+        }
+        return \Permission::check('CMS_ACCESS_CMSMain');
     }
 
     public function canDelete($member = null)
     {
-        return $this->BoundTo()->canDelete($member);
+        $boundTo = $this->BoundTo();
+        if ($boundTo) {
+            return $this->BoundTo()->canDelete($member);
+        }
+        return \Permission::check('CMS_ACCESS_CMSMain');
     }
 
-    public function canView($member = null) {
-        return $this->BoundTo()->canView($member);
+    public function canView($member = null)
+    {
+        $boundTo = $this->BoundTo();
+        if ($boundTo) {
+            return $this->BoundTo()->canView($member);
+        }
+        return \Permission::check('CMS_ACCESS_CMSMain');
     }
     
 }

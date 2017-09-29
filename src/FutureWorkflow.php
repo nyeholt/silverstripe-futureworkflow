@@ -10,29 +10,29 @@ namespace Symbiote\FutureWorkflow;
 class FutureWorkflow extends \DataObject
 {
     const TYPE_FIXED_DATE = 'date';
-    const TYPE_EDIT = 'edit';
-    const TYPE_PUBLISH = 'publish';
+    const TYPE_EDIT       = 'edit';
+    const TYPE_PUBLISH    = 'publish';
 
-    private static $db = [
+    private static $db             = [
         'Title' => 'Varchar(128)',
         'Type' => 'Varchar',
         'VariableTime' => 'Varchar',
         'ExecuteTime' => 'SS_Datetime',
         'ContentFields' => 'MultiValueField',
-        'ApplyToChildren'   => 'Boolean',
+        'ApplyToChildren' => 'Boolean',
     ];
-    private static $has_one = [
+    private static $has_one        = [
         'BoundTo' => 'DataObject',
         'Workflow' => 'WorkflowDefinition',
     ];
     private static $summary_fields = [
         'Title', 'Workflow.Title',
     ];
-    private static $defaults = [
+    private static $defaults       = [
         'ApplyToChildren' => true
     ];
-    private static $singular_name = 'Future Workflow';
-    public $types = [
+    private static $singular_name  = 'Future Workflow';
+    public $types                  = [
         'edit' => 'Set start date based on page edit',
         'publish' => 'Set start date based on page publish',
         self::TYPE_FIXED_DATE => 'Triggered at specific time'
@@ -44,16 +44,17 @@ class FutureWorkflow extends \DataObject
         parent::onBeforeWrite();
 
         if ($this->Type === self::TYPE_FIXED_DATE) {
-            $this->VariableTime  = '';
+            $this->VariableTime = '';
         }
     }
 
     /**
      * Check whether fixed time trigger needs setting
      */
-    public function checkFixedTimes($againstObject) {
+    public function checkFixedTimes($againstObject)
+    {
         if ($this->Type === self::TYPE_FIXED_DATE && $this->ExecuteTime) {
-            $trigger = $this->triggerFor($againstObject);
+            $trigger                = $this->triggerFor($againstObject);
             $trigger->EffectiveTime = $this->ExecuteTime;
             $trigger->write();
         }
@@ -95,13 +96,12 @@ class FutureWorkflow extends \DataObject
 
             if (strlen($effectiveTime)) {
                 // find an existing match, or create a new one
-                $trigger = $this->triggerFor($againstObject);
+                $trigger                = $this->triggerFor($againstObject);
                 $trigger->EffectiveTime = $effectiveTime;
                 $trigger->write();
 
                 return $trigger;
             }
-            
         }
 
         return false;
@@ -113,11 +113,12 @@ class FutureWorkflow extends \DataObject
      *
      * @return FutureWorkflowTrigger
      */
-    protected function triggerFor($context) {
+    protected function triggerFor($context)
+    {
         $filter = [
             'BoundToID' => $context->ID,
             'BoundToClass' => $context->class,
-            'SourceID'  => $this->ID,
+            'SourceID' => $this->ID,
         ];
 
         $trigger = FutureWorkflowTrigger::get()->filter($filter)->first();
@@ -147,21 +148,34 @@ class FutureWorkflow extends \DataObject
 
         $fields->removeByName('BoundToID');
         $fields->removeByName('JobID');
-        
+
         return $fields;
     }
 
     public function canEdit($member = null)
     {
-        return $this->BoundTo()->canEdit($member);
+        $boundTo = $this->BoundTo();
+        if ($boundTo) {
+            return $this->BoundTo()->canEdit($member);
+        }
+        return \Permission::check('CMS_ACCESS_CMSMain');
     }
 
     public function canDelete($member = null)
     {
-        return $this->BoundTo()->canDelete($member);
+        $boundTo = $this->BoundTo();
+        if ($boundTo) {
+            return $this->BoundTo()->canDelete($member);
+        }
+        return \Permission::check('CMS_ACCESS_CMSMain');
     }
 
-    public function canView($member = null) {
-        return $this->BoundTo()->canView($member);
+    public function canView($member = null)
+    {
+        $boundTo = $this->BoundTo();
+        if ($boundTo) {
+            return $this->BoundTo()->canView($member);
+        }
+        return \Permission::check('CMS_ACCESS_CMSMain');
     }
 }
