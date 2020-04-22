@@ -2,12 +2,16 @@
 
 namespace Symbiote\FutureWorkflow;
 
+use Symbiote\AdvancedWorkflow\Services\ExistingWorkflowException;
+use Symbiote\AdvancedWorkflow\Services\WorkflowService;
+use Symbiote\QueuedJobs\Services\AbstractQueuedJob;
+
 /**
- * 
+ *
  *
  * @author marcus
  */
-class FutureWorkflowJob extends \AbstractQueuedJob
+class FutureWorkflowJob extends AbstractQueuedJob
 {
 
     public function __construct($futureWorkflowTrigger = null)
@@ -58,11 +62,11 @@ class FutureWorkflowJob extends \AbstractQueuedJob
         }
 
         try {
-            \singleton('WorkflowService')->startWorkflow($applyTo, $def);
-        } catch (\ExistingWorkflowException $ex) {
+            singleton(WorkflowService::class)->startWorkflow($applyTo, $def);
+        } catch (ExistingWorkflowException $ex) {
 
         }
-        
+
 
         // and we can now delete the trigger
         $trigger->delete();

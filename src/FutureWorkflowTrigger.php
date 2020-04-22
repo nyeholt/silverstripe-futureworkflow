@@ -2,12 +2,15 @@
 
 namespace Symbiote\FutureWorkflow;
 
+use SilverStripe\ORM\DataObject;
+use SilverStripe\Security\Permission;
+
 /**
- * 
+ *
  *
  * @author marcus
  */
-class FutureWorkflowTrigger extends \DataObject
+class FutureWorkflowTrigger extends DataObject
 {
     private static $db = [
         'EffectiveTime' => 'SS_Datetime',
@@ -47,7 +50,7 @@ class FutureWorkflowTrigger extends \DataObject
             $this->JobID = 0;
         }
 
-        if (strlen($this->EffectiveTime) && $this->isChanged('EffectiveTime', \DataObject::CHANGE_VALUE)) {
+        if (strlen($this->EffectiveTime) && $this->isChanged('EffectiveTime', DataObject::CHANGE_VALUE)) {
             if ($job && $job->ID) {
                 $job->delete();
                 $this->JobID = 0;
@@ -66,7 +69,7 @@ class FutureWorkflowTrigger extends \DataObject
         if ($boundTo) {
             return $this->BoundTo()->canEdit($member);
         }
-        return \Permission::check('CMS_ACCESS_CMSMain');
+        return Permission::check('CMS_ACCESS_CMSMain');
     }
 
     public function canDelete($member = null)
@@ -75,7 +78,7 @@ class FutureWorkflowTrigger extends \DataObject
         if ($boundTo) {
             return $this->BoundTo()->canDelete($member);
         }
-        return \Permission::check('CMS_ACCESS_CMSMain');
+        return Permission::check('CMS_ACCESS_CMSMain');
     }
 
     public function canView($member = null)
@@ -84,7 +87,7 @@ class FutureWorkflowTrigger extends \DataObject
         if ($boundTo) {
             return $this->BoundTo()->canView($member);
         }
-        return \Permission::check('CMS_ACCESS_CMSMain');
+        return Permission::check('CMS_ACCESS_CMSMain');
     }
-    
+
 }

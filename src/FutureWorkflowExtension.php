@@ -2,12 +2,20 @@
 
 namespace Symbiote\FutureWorkflow;
 
+use SilverStripe\Core\ClassInfo;
+use SilverStripe\Forms\FieldList;
+use SilverStripe\Forms\GridField\GridField;
+use SilverStripe\Forms\GridField\GridFieldConfig_RecordEditor;
+use SilverStripe\Forms\GridField\GridFieldConfig_RecordViewer;
+use SilverStripe\ORM\DataExtension;
+use SilverStripe\ORM\DataObject;
+
 /**
- * 
+ *
  *
  * @author marcus
  */
-class FutureWorkflowExtension extends \DataExtension
+class FutureWorkflowExtension extends DataExtension
 {
     private static $has_many = [
         'FutureJobs' => 'Symbiote\FutureWorkflow\FutureWorkflow',
@@ -24,10 +32,10 @@ class FutureWorkflowExtension extends \DataExtension
      */
     protected $_cache_FutureJobs;
 
-    public function updateSettingsFields(\FieldList $fields)
+    public function updateSettingsFields(FieldList $fields)
     {
-        $config = \GridFieldConfig_RecordEditor::create();
-        $grid   = \GridField::create('FutureJobs', 'Future workflows', $this->owner->FutureJobs(), $config);
+        $config = GridFieldConfig_RecordEditor::create();
+        $grid   = GridField::create('FutureJobs', 'Future workflows', $this->owner->FutureJobs(), $config);
         $fields->addFieldToTab('Root.Workflow', $grid);
 
 
@@ -36,8 +44,8 @@ class FutureWorkflowExtension extends \DataExtension
             'BoundToClass' => $this->owner->class,
         ]);
         if ($triggers->count()) {
-            $config = \GridFieldConfig_RecordViewer::create();
-            $grid   = \GridField::create('FutureTriggers', 'Future triggers', $triggers, $config);
+            $config = GridFieldConfig_RecordViewer::create();
+            $grid   = GridField::create('FutureTriggers', 'Future triggers', $triggers, $config);
             $fields->addFieldToTab('Root.Workflow', $grid);
         }
     }
@@ -53,7 +61,7 @@ class FutureWorkflowExtension extends \DataExtension
                 $ids = $ancestors->column('ID');
                 $ids[] = $this->owner->ID;
 
-                $hierarchy = \ClassInfo::getValidSubClasses(\ClassInfo::baseDataClass($this->owner->class));
+                $hierarchy = ClassInfo::getValidSubClasses(ClassInfo::baseDataClass($this->owner->class));
 
                 $this->_cache_FutureJobs = FutureWorkflow::get()->filter([
                     'BoundToID' => $ids,
@@ -71,7 +79,7 @@ class FutureWorkflowExtension extends \DataExtension
 
     public function onBeforeWrite()
     {
-        $changes    = $this->owner->getChangedFields(true, \DataObject::CHANGE_VALUE);
+        $changes    = $this->owner->getChangedFields(true, DataObject::CHANGE_VALUE);
         $jobs = $this->collectFutureJobs();
         foreach ($jobs as $j) {
             $j->evaluateDataChanges($this->owner, $changes, FutureWorkflow::TYPE_EDIT);

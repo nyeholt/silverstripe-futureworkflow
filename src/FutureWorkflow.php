@@ -2,12 +2,15 @@
 
 namespace Symbiote\FutureWorkflow;
 
+use SilverStripe\ORM\DataObject;
+use SilverStripe\Security\Permission;
+
 /**
  * Represents a workflow that will be started at a future-date
  *
  * @author marcus
  */
-class FutureWorkflow extends \DataObject
+class FutureWorkflow extends DataObject
 {
     const TYPE_FIXED_DATE = 'date';
     const TYPE_EDIT       = 'edit';
@@ -158,7 +161,7 @@ class FutureWorkflow extends \DataObject
         if ($boundTo) {
             return $this->BoundTo()->canEdit($member);
         }
-        return \Permission::check('CMS_ACCESS_CMSMain');
+        return Permission::check('CMS_ACCESS_CMSMain');
     }
 
     public function canDelete($member = null)
@@ -167,7 +170,7 @@ class FutureWorkflow extends \DataObject
         if ($boundTo) {
             return $this->BoundTo()->canDelete($member);
         }
-        return \Permission::check('CMS_ACCESS_CMSMain');
+        return Permission::check('CMS_ACCESS_CMSMain');
     }
 
     public function canView($member = null)
@@ -176,6 +179,6 @@ class FutureWorkflow extends \DataObject
         if ($boundTo) {
             return $this->BoundTo()->canView($member);
         }
-        return \Permission::check('CMS_ACCESS_CMSMain');
+        return Permission::check('CMS_ACCESS_CMSMain');
     }
 }
