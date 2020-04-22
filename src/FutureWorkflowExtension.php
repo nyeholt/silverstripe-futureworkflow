@@ -8,7 +8,9 @@ use SilverStripe\Forms\GridField\GridField;
 use SilverStripe\Forms\GridField\GridFieldConfig_RecordEditor;
 use SilverStripe\Forms\GridField\GridFieldConfig_RecordViewer;
 use SilverStripe\ORM\DataExtension;
+use SilverStripe\ORM\DataList;
 use SilverStripe\ORM\DataObject;
+use Symbiote\AdvancedWorkflow\Services\WorkflowService;
 
 /**
  *
@@ -22,7 +24,7 @@ class FutureWorkflowExtension extends DataExtension
     ];
 
     /**
-     * @var \WorkflowService
+     * @var WorkflowService
      */
     public $workflowService;
 
@@ -41,7 +43,7 @@ class FutureWorkflowExtension extends DataExtension
 
         $triggers = FutureWorkflowTrigger::get()->filter([
             'BoundToID' => $this->owner->ID,
-            'BoundToClass' => $this->owner->class,
+            'BoundToClass' => $this->owner->getClassName(),
         ]);
         if ($triggers->count()) {
             $config = GridFieldConfig_RecordViewer::create();
@@ -61,7 +63,7 @@ class FutureWorkflowExtension extends DataExtension
                 $ids = $ancestors->column('ID');
                 $ids[] = $this->owner->ID;
 
-                $hierarchy = ClassInfo::getValidSubClasses(ClassInfo::baseDataClass($this->owner->class));
+                $hierarchy = ClassInfo::getValidSubClasses(ClassInfo::baseDataClass($this->owner->getClassName()));
 
                 $this->_cache_FutureJobs = FutureWorkflow::get()->filter([
                     'BoundToID' => $ids,

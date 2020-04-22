@@ -13,8 +13,8 @@ composer require symbiote-library/silverstripe-futureworkflow:~1.0
 
 ## Requirements
 
-* SilverStripe 3.5+
-* Advanced Workflow 3.8+
+* SilverStripe 4.4+
+* Advanced Workflow 5+
 
 ## Documentation
 

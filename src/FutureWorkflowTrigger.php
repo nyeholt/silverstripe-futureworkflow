@@ -4,6 +4,8 @@ namespace Symbiote\FutureWorkflow;
 
 use SilverStripe\ORM\DataObject;
 use SilverStripe\Security\Permission;
+use Symbiote\QueuedJobs\DataObjects\QueuedJobDescriptor;
+use Symbiote\QueuedJobs\Services\QueuedJobService;
 
 /**
  *
@@ -13,13 +15,13 @@ use SilverStripe\Security\Permission;
 class FutureWorkflowTrigger extends DataObject
 {
     private static $db = [
-        'EffectiveTime' => 'SS_Datetime',
+        'EffectiveTime' => 'Datetime',
     ];
 
     private static $has_one = [
-        'BoundTo' => 'DataObject',
-        'Source' => 'Symbiote\FutureWorkflow\FutureWorkflow',
-        'Job' => 'QueuedJobDescriptor'
+        'BoundTo' => DataObject::class,
+        'Source' => FutureWorkflow::class,
+        'Job' => QueuedJobDescriptor::class
     ];
 
     private static $summary_fields = [
@@ -59,7 +61,7 @@ class FutureWorkflowTrigger extends DataObject
 
         if (strlen($this->EffectiveTime) && !$this->JobID) {
             $job         = new FutureWorkflowJob($this);
-            $this->JobID = singleton('QueuedJobService')->queueJob($job, $this->EffectiveTime);
+            $this->JobID = singleton(QueuedJobService::class)->queueJob($job, $this->EffectiveTime);
         }
     }
 
@@ -89,5 +91,4 @@ class FutureWorkflowTrigger extends DataObject
         }
         return Permission::check('CMS_ACCESS_CMSMain');
     }
-
 }

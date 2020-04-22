@@ -2,6 +2,7 @@
 
 namespace Symbiote\FutureWorkflow;
 
+use Symbiote\AdvancedWorkflow\DataObjects\WorkflowInstance;
 use Symbiote\AdvancedWorkflow\Services\ExistingWorkflowException;
 use Symbiote\AdvancedWorkflow\Services\WorkflowService;
 use Symbiote\QueuedJobs\Services\AbstractQueuedJob;
@@ -28,7 +29,7 @@ class FutureWorkflowJob extends AbstractQueuedJob
         if ($trigger && $trigger->SourceID) {
             $source = $trigger->Source();
             $boundTo = $trigger->BoundTo();
-            return "Start workflow \"" . $trigger->Source()->Title ."\" on " . ($boundTo ? $boundTo->Title : " unknown");
+            return "Start workflow \"" . $trigger->Source()->Title . "\" on " . ($boundTo ? $boundTo->Title : " unknown");
         }
         return "Expired future workflow job";
     }
@@ -58,13 +59,18 @@ class FutureWorkflowJob extends AbstractQueuedJob
         $def = $futureWorkflow->Workflow();
 
         if (!$def) {
+            $this->addMessage("No workflow found to execute");
             return;
         }
 
         try {
-            singleton(WorkflowService::class)->startWorkflow($applyTo, $def);
+            $current = $applyTo->getWorkflowInstance();
+            if (!$current) {
+                $instance = new WorkflowInstance();
+                $instance->beginWorkflow($def, $applyTo);
+                $instance->execute();
+            }
         } catch (ExistingWorkflowException $ex) {
-
         }
 
 

@@ -2,8 +2,12 @@
 
 namespace Symbiote\FutureWorkflow;
 
+use SilverStripe\Forms\DropdownField;
+use SilverStripe\Forms\ReadonlyField;
 use SilverStripe\ORM\DataObject;
 use SilverStripe\Security\Permission;
+use Symbiote\AdvancedWorkflow\DataObjects\WorkflowDefinition;
+use Symbiote\MultiValueField\Fields\MultiValueTextField;
 
 /**
  * Represents a workflow that will be started at a future-date
@@ -20,13 +24,13 @@ class FutureWorkflow extends DataObject
         'Title' => 'Varchar(128)',
         'Type' => 'Varchar',
         'VariableTime' => 'Varchar',
-        'ExecuteTime' => 'SS_Datetime',
+        'ExecuteTime' => 'Datetime',
         'ContentFields' => 'MultiValueField',
         'ApplyToChildren' => 'Boolean',
     ];
     private static $has_one        = [
-        'BoundTo' => 'DataObject',
-        'Workflow' => 'WorkflowDefinition',
+        'BoundTo' => DataObject::class,
+        'Workflow' => WorkflowDefinition::class,
     ];
     private static $summary_fields = [
         'Title', 'Workflow.Title',
@@ -35,6 +39,7 @@ class FutureWorkflow extends DataObject
         'ApplyToChildren' => true
     ];
     private static $singular_name  = 'Future Workflow';
+
     public $types                  = [
         'edit' => 'Set start date based on page edit',
         'publish' => 'Set start date based on page publish',
@@ -120,7 +125,7 @@ class FutureWorkflow extends DataObject
     {
         $filter = [
             'BoundToID' => $context->ID,
-            'BoundToClass' => $context->class,
+            'BoundToClass' => $context->getClassName(),
             'SourceID' => $this->ID,
         ];
 
@@ -139,14 +144,14 @@ class FutureWorkflow extends DataObject
     {
         $fields = parent::getCMSFields();
 
-        $fields->replaceField('Type', \DropdownField::create('Type', 'Trigger type', $this->types));
-        $fields->replaceField('EffectiveTime', \ReadonlyField::create('ReadonlyTime', 'Runs at', $this->EffectiveTime));
+        $fields->replaceField('Type', DropdownField::create('Type', 'Trigger type', $this->types));
+        $fields->replaceField('EffectiveTime', ReadonlyField::create('ReadonlyTime', 'Runs at', $this->EffectiveTime));
 
         $fields->dataFieldByName('VariableTime')->setRightTitle(_t('FutureWorkflow.STRTOTIME_FORMAT',
                 'strtotime compatible string'));
 
         $fields->addFieldToTab('Root.Main',
-            \MultiValueTextField::create('ContentFields', 'Fields monitored')
+            MultiValueTextField::create('ContentFields', 'Fields monitored')
                 ->setRightTitle('If set, trigger time is updated if these fields have changed. If not set, all fields are considered'));
 
         $fields->removeByName('BoundToID');
