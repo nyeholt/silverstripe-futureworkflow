@@ -90,21 +90,21 @@ class FutureWorkflowExtension extends DataExtension
 
     public function onBeforePublish(&$original)
     {
-        $original = $original->getQueriedDatabaseFields();
+        $originalData = $original ? $original->getQueriedDatabaseFields() : [];
         $new  = $this->owner->getQueriedDatabaseFields();
 
         $changes = [];
         foreach ($new as $k => $v) {
-            if (!isset($original[$k])) {
+            if (!isset($originalData[$k])) {
                 $changes[$k] = [
                     'before' => '',
                     'after' => $v,
                 ];
                 continue;
             }
-            if (isset($original[$k]) && is_scalar($v) && $v != $original[$k]) {
+            if (isset($originalData[$k]) && is_scalar($v) && $v != $originalData[$k]) {
                 $changes[$k] = [
-                    'before' => $original[$k],
+                    'before' => $originalData[$k],
                     'after' => $v,
                 ];
             }
@@ -114,11 +114,6 @@ class FutureWorkflowExtension extends DataExtension
         foreach ($jobs as $j) {
             $j->evaluateDataChanges($this->owner, $changes, FutureWorkflow::TYPE_PUBLISH);
         }
-//
-//        $jobs = $this->owner->FutureJobs();
-//        foreach ($jobs as $j) {
-//            $j->evaluateDataChanges($this->owner, 'publish');
-//        }
     }
 
     public function onAfterWrite()
