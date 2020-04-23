@@ -16,6 +16,8 @@ use Symbiote\MultiValueField\Fields\MultiValueTextField;
  */
 class FutureWorkflow extends DataObject
 {
+    private static $table_name = 'FutureWorkflow';
+
     const TYPE_FIXED_DATE = 'date';
     const TYPE_EDIT       = 'edit';
     const TYPE_PUBLISH    = 'publish';
