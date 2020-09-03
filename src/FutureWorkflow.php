@@ -64,6 +64,12 @@ class FutureWorkflow extends DataObject
     public function checkFixedTimes($againstObject)
     {
         if ($this->Type === self::TYPE_FIXED_DATE && $this->ExecuteTime) {
+            // we check whether the execute time is in the future, otherwise
+            // we don't add a 'future' trigger
+            if (time() > strtotime($this->ExecuteTime)) {
+                return;
+            }
+
             $trigger                = $this->triggerFor($againstObject);
             $trigger->EffectiveTime = $this->ExecuteTime;
             $trigger->write();
@@ -104,7 +110,8 @@ class FutureWorkflow extends DataObject
             // okay, we know we can set things now
             $effectiveTime = date('Y-m-d H:i:s', strtotime($this->VariableTime));
 
-            if (strlen($effectiveTime)) {
+            // protect against a null or past time
+            if (strlen($effectiveTime) && time() < strtotime($effectiveTime)) {
                 // find an existing match, or create a new one
                 $trigger                = $this->triggerFor($againstObject);
                 $trigger->EffectiveTime = $effectiveTime;

@@ -47,7 +47,7 @@ class FutureWorkflowExtension extends DataExtension
             'BoundToClass' => $this->owner->getClassName(),
         ]);
         if ($triggers->count()) {
-            $config = GridFieldConfig_RecordViewer::create();
+            $config = GridFieldConfig_RecordEditor::create();
             $grid   = GridField::create('FutureTriggers', 'Future triggers', $triggers, $config);
             $fields->addFieldToTab('Root.Workflow', $grid);
         }
