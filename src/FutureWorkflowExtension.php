@@ -7,6 +7,7 @@ use SilverStripe\Forms\FieldList;
 use SilverStripe\Forms\GridField\GridField;
 use SilverStripe\Forms\GridField\GridFieldConfig_RecordEditor;
 use SilverStripe\Forms\GridField\GridFieldConfig_RecordViewer;
+use SilverStripe\ORM\ArrayList;
 use SilverStripe\ORM\DataExtension;
 use SilverStripe\ORM\DataList;
 use SilverStripe\ORM\DataObject;
@@ -65,12 +66,16 @@ class FutureWorkflowExtension extends DataExtension
 
                 $hierarchy = ClassInfo::getValidSubClasses(ClassInfo::baseDataClass($this->owner->getClassName()));
 
-                $this->_cache_FutureJobs = FutureWorkflow::get()->filter([
+                $parents = ArrayList::create(FutureWorkflow::get()->filter([
                     'BoundToID' => $ids,
                     'BoundToClass' => $hierarchy,
                     'ApplyToChildren' => 1
-                ]);
+                ])->toArray());
 
+                $mine = ArrayList::create($this->owner->FutureJobs()->toArray());
+
+                $parents->merge($mine);
+                $this->_cache_FutureJobs = $parents;
             } else {
                 $this->_cache_FutureJobs = $this->owner->FutureJobs();
             }
